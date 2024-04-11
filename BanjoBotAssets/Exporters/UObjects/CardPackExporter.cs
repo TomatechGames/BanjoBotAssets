@@ -29,6 +29,12 @@ namespace BanjoBotAssets.Exporters.UObjects
             {
                 imagePaths.Add(ImageType.PackImage, path);
             }
+            if (asset.GetSoftAssetPath("LargePreviewImage") is string largepath)
+            {
+                //forces large preview images where possible
+                imagePaths.Remove(ImageType.SmallPreview);
+                imagePaths.Add(ImageType.SmallPreview, largepath);
+            }
 
             return base.ExportAssetAsync(asset, itemData, imagePaths);
         }
