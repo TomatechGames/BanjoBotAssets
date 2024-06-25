@@ -22,10 +22,10 @@ namespace BanjoBotAssets.Exporters.Groups
 {
     internal sealed record HeroItemGroupFields(string DisplayName, string? Description, string? SubType,
         string? HeroPerkName, string HeroPerk, string HeroPerkDescription, string? CommanderPerkName, string CommanderPerk, string CommanderPerkDescription,
-        PerkRequirement? HeroPerkRequirement, string[] HeroAbilities)
+        PerkRequirement? HeroPerkRequirement, string[] HeroAbilities, string? HeroStatLine)
         : BaseItemGroupFields(DisplayName, Description, SubType)
     {
-        public HeroItemGroupFields() : this("", null, null, null, "", "", null, "", "", null, []) { }
+        public HeroItemGroupFields() : this("", null, null, null, "", "", null, "", "", null, [], "") { }
     }
 
     internal sealed partial class HeroExporter(IExporterContext services) : GroupExporter<UFortHeroType, BaseParsedItemName, HeroItemGroupFields, HeroItemData>(services)
@@ -90,6 +90,10 @@ namespace BanjoBotAssets.Exporters.Groups
             var tierAbilityKits = hgd?.GetOrDefault<FStructFallback[]>("TierAbilityKits");
             var heroAbilities = tierAbilityKits != null ? Array.ConvertAll(tierAbilityKits, GetHeroAbilityID) : Array.Empty<string>();
 
+            // stat line
+            var heroStatLineTags = hgd?.GetOrDefault<string[]>("HeroBaseStatlineTags");
+            var heroStatLine = heroStatLineTags?[0]?.Split('.')?[^1];
+
             return result with
             {
                 HeroPerkName = heroPerkName,
@@ -101,6 +105,7 @@ namespace BanjoBotAssets.Exporters.Groups
                 CommanderPerkDescription = commanderPerkDesc,
                 SubType = GetHeroClass(asset.GameplayTags),
                 HeroAbilities = heroAbilities,
+                HeroStatLine = heroStatLine
             };
         }
 
@@ -211,6 +216,7 @@ namespace BanjoBotAssets.Exporters.Groups
             itemData.CommanderPerkDescription = fields.CommanderPerkDescription;
             itemData.HeroAbilities = fields.HeroAbilities;
             itemData.HeroPerkRequirement = fields.HeroPerkRequirement;
+            itemData.HeroStatLine = fields.HeroStatLine;
 
             if (heroToTeamPerk.TryGetValue($"Hero:{Path.GetFileNameWithoutExtension(path)}", out var teamPerk))
             {
