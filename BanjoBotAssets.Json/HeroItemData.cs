@@ -38,6 +38,7 @@ namespace BanjoBotAssets.Json
 
         [DisallowNull]
         public string[]? HeroAbilities { get; set; }
+        public string? HeroStatLine { get; set; }
     }
 
     /// <summary>
