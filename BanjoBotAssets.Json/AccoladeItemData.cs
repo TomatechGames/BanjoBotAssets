@@ -1,4 +1,4 @@
-﻿/* Copyright 2023 Tara "Dino" Cassatt
+/* Copyright 2023 Tara "Dino" Cassatt
  * 
  * This file is part of BanjoBotAssets.
  * 
