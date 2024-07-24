@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using CUE4Parse.GameTypes.PUBG.Assets.Exports;
+using System.Text.Json.Nodes;
 
 namespace BanjoBotAssets
 {
@@ -117,6 +118,8 @@ namespace BanjoBotAssets
                 writer.WriteLine(item.Value.ToString());
                 writer.Flush();
             }
+
+            banjoFile.CopyTo($"{destinationDir.FullName}/assets.json");
 
             if (copyImages)
             {
