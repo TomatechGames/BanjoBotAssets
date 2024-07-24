@@ -25,9 +25,10 @@ using BanjoBotAssets.Config;
 
 // TODO: export per-difficulty stat clamp tables (GameDifficultyGrowthBounds, CombatStatClampsPerTheater)
 // TODO: export collection book categories and recruitment/research/voucher options (CollectionBookSlots)
-
+#if !RELEASE
 Console.WriteLine("type \"skip\" to skip resource extraction");
 if (Console.ReadLine() != "skip")
+#endif
 {
 await Host.CreateDefaultBuilder(args)
 #if DEBUG
@@ -56,9 +57,15 @@ await Host.CreateDefaultBuilder(args)
     })
     .RunConsoleAsync(o => o.SuppressStatusMessages = true);
 }
-
+string pegLegDestination = Path.GetFullPath("../../../Banjo", Environment.CurrentDirectory);
+#if !RELEASE
 Console.WriteLine("type \"skip\" to skip pegleg post processing");
+pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
 if (Console.ReadLine() != "skip")
-    PegLegPostProcessor.PostProcessBanjoAssets(Environment.CurrentDirectory, @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo");
+#endif
+{
+    //pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
+    //PegLegPostProcessor.PostProcessBanjoAssets(Environment.CurrentDirectory, pegLegDestination);
+}
 
 return Environment.ExitCode;
