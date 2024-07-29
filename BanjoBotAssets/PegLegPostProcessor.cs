@@ -1,5 +1,4 @@
-﻿using CUE4Parse.GameTypes.PUBG.Assets.Exports;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace BanjoBotAssets
 {
