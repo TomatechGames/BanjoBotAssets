@@ -28,6 +28,7 @@ namespace BanjoBotAssets.Json
         public SortedDictionary<string, NamedItemData> NamedItems { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         public ItemRatingTables ItemRatings { get; } = new();
+        public HeroStatTable HeroStats { get; set; } = new();
 
         public SortedDictionary<string, ExpeditionCriteria> ExpeditionCriteria { get; } = new(StringComparer.OrdinalIgnoreCase);
         public SortedDictionary<string, DifficultyInfo> DifficultyInfo { get; } = new(StringComparer.OrdinalIgnoreCase);
@@ -52,6 +53,11 @@ namespace BanjoBotAssets.Json
                 {
                     NamedItems[k] = v;
                 }
+            }
+
+            if(other.HeroStats != null)
+            {
+                HeroStats = other.HeroStats;
             }
 
             if (other.ItemRatings != null)

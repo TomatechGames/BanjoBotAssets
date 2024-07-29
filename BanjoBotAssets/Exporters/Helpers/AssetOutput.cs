@@ -22,6 +22,7 @@ namespace BanjoBotAssets.Exporters.Helpers
 {
     internal sealed class AssetOutput : IAssetOutput
     {
+        private HeroStatTable? heroStats;
         private ItemRatingTable? defaultItemRatings, survivorItemRatings, leadSurvivorItemRatings;
         private readonly ConcurrentDictionary<string, NamedItemData> namedItems = new(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<ImageType, ConcurrentDictionary<string, string>> namedItemImages = new();
@@ -42,6 +43,11 @@ namespace BanjoBotAssets.Exporters.Helpers
         {
             public int XPStepAmount { get; set; } = 200_000;
             public ConcurrentDictionary<int, XPRewardLevel> Rewards = new();
+        }
+
+        public void AddHeroStats(HeroStatTable heroStats)
+        {
+            this.heroStats = heroStats;
         }
 
         public void AddDefaultItemRatings(ItemRatingTable itemRatings)
@@ -114,6 +120,11 @@ namespace BanjoBotAssets.Exporters.Helpers
             {
                 exportedAssets.DifficultyInfo.TryAdd(k, v);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (heroStats != null)
+                exportedAssets.HeroStats = heroStats;
 
             cancellationToken.ThrowIfCancellationRequested();
 
