@@ -65,7 +65,7 @@ if (Console.ReadLine() != "skip")
 #endif
 {
     //pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
-    //PegLegPostProcessor.PostProcessBanjoAssets(Environment.CurrentDirectory, pegLegDestination);
+    PegLegPostProcessor.PostProcessBanjoAssets(Environment.CurrentDirectory, pegLegDestination, PegLegPostProcessor.ImageMode.Move);
 }
 
 return Environment.ExitCode;

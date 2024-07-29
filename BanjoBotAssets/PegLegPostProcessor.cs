@@ -1,11 +1,16 @@
-﻿using CUE4Parse.GameTypes.PUBG.Assets.Exports;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace BanjoBotAssets
 {
     internal static class PegLegPostProcessor
     {
-        public static void PostProcessBanjoAssets(string banjoBotOutputPath, string destinationPath, bool copyImages = true)
+        public enum ImageMode
+        {
+            Ignore,
+            Move,
+            Copy
+        }
+        public static void PostProcessBanjoAssets(string banjoBotOutputPath, string destinationPath, ImageMode imageMode)
         {
             DirectoryInfo banjoDir = new(banjoBotOutputPath);
             DirectoryInfo destinationDir = new(destinationPath);
@@ -119,9 +124,7 @@ namespace BanjoBotAssets
                 writer.Flush();
             }
 
-            banjoFile.CopyTo($"{destinationDir.FullName}/assets.json");
-
-            if (copyImages)
+            if (imageMode!=ImageMode.Ignore)
             {
                 //Console.WriteLine("press enter to copy images");
                 //Console.ReadLine();
@@ -141,8 +144,16 @@ namespace BanjoBotAssets
                         else
                             continue;
                     }
-                    Console.WriteLine("copied image: " + oldFile.Name);
-                    oldFile.CopyTo(newFile.FullName);
+                    if (imageMode == ImageMode.Copy)
+                    {
+                        Console.WriteLine("copied image: " + oldFile.Name);
+                        oldFile.CopyTo(newFile.FullName);
+                    }
+                    else
+                    {
+                        Console.WriteLine("moved image: " + oldFile.Name);
+                        oldFile.CopyTo(newFile.FullName);
+                    }
                 }
             }
             Console.WriteLine("all done");
