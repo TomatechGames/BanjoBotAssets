@@ -21,11 +21,11 @@ using CUE4Parse.Utils;
 namespace BanjoBotAssets.Exporters.Groups
 {
     internal sealed record HeroItemGroupFields(string DisplayName, string? Description, string? SubType,
-        string? HeroPerkName, string HeroPerk, string HeroPerkDescription, string? CommanderPerkName, string CommanderPerk, string CommanderPerkDescription,
-        PerkRequirement? HeroPerkRequirement, string[] HeroAbilities)
+        string HeroPerkName, string HeroPerk, string HeroPerkDescription, string CommanderPerkName, string CommanderPerk, string CommanderPerkDescription,
+        PerkRequirement? HeroPerkRequirement, string[] HeroAbilities, string HeroStatType)
         : BaseItemGroupFields(DisplayName, Description, SubType)
     {
-        public HeroItemGroupFields() : this("", null, null, null, "", "", null, "", "", null, []) { }
+        public HeroItemGroupFields() : this("", null, null, "", "", "", "", "", "", null, [], "") { }
     }
 
     internal sealed partial class HeroExporter(IExporterContext services) : GroupExporter<UFortHeroType, BaseParsedItemName, HeroItemGroupFields, HeroItemData>(services)
@@ -90,6 +90,14 @@ namespace BanjoBotAssets.Exporters.Groups
             var tierAbilityKits = hgd?.GetOrDefault<FStructFallback[]>("TierAbilityKits");
             var heroAbilities = tierAbilityKits != null ? Array.ConvertAll(tierAbilityKits, GetHeroAbilityID) : Array.Empty<string>();
 
+            //subtype
+            var subtype = GetHeroClass(asset.GameplayTags);
+
+            // stat line
+            var heroStatLineTags = hgd?.GetOrDefault<FGameplayTagContainer>("HeroBaseStatlineTags");
+            var heroStatType = heroStatLineTags?.GameplayTags[0].TagName.Text.Split('.')?[^1] ?? "<?>";
+            //Todo: export hero stats with simplified keys that can be indexed with $"[SubType_HeroStatLine][Rarity_Tier][Stat]"
+
             return result with
             {
                 HeroPerkName = heroPerkName,
@@ -99,8 +107,9 @@ namespace BanjoBotAssets.Exporters.Groups
                 CommanderPerkName = commanderPerkName,
                 CommanderPerk = commanderPerk,
                 CommanderPerkDescription = commanderPerkDesc,
-                SubType = GetHeroClass(asset.GameplayTags),
+                SubType = subtype,
                 HeroAbilities = heroAbilities,
+                HeroStatType = heroStatType
             };
         }
 
@@ -116,11 +125,11 @@ namespace BanjoBotAssets.Exporters.Groups
             return base.GetRarity(parsedName, primaryAsset, fields);
         }
 
-        private async Task<(string? perkName, string displayName, string description, PerkRequirement? requirement)> GetPerkAsync(UObject? gameplayDefinition, string perkProperty)
+        private async Task<(string perkName, string displayName, string description, PerkRequirement? requirement)> GetPerkAsync(UObject? gameplayDefinition, string perkProperty)
         {
             var perk = gameplayDefinition?.GetOrDefault<FStructFallback>(perkProperty);
             if (perk == null)
-                return (null, $"<{Resources.Field_Hero_NoGrantedAbility}>", $"<{Resources.Field_NoDescription}>", null);
+                return ("<?>", $"<{Resources.Field_Hero_NoGrantedAbility}>", $"<{Resources.Field_NoDescription}>", null);
 
             Interlocked.Increment(ref assetsLoaded);
             var perkName = perk.GetOrDefault<FSoftObjectPath>("GrantedAbilityKit").AssetPathName.Text.Split(".")[^1];
@@ -211,6 +220,7 @@ namespace BanjoBotAssets.Exporters.Groups
             itemData.CommanderPerkDescription = fields.CommanderPerkDescription;
             itemData.HeroAbilities = fields.HeroAbilities;
             itemData.HeroPerkRequirement = fields.HeroPerkRequirement;
+            itemData.HeroStatType = fields.HeroStatType;
 
             if (heroToTeamPerk.TryGetValue($"Hero:{Path.GetFileNameWithoutExtension(path)}", out var teamPerk))
             {
