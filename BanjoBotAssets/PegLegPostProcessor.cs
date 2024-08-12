@@ -152,7 +152,7 @@ namespace BanjoBotAssets
                     else
                     {
                         Console.WriteLine("moved image: " + oldFile.Name);
-                        oldFile.CopyTo(newFile.FullName);
+                        oldFile.MoveTo(newFile.FullName);
                     }
                 }
             }
