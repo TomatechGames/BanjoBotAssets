@@ -70,6 +70,7 @@ namespace BanjoBotAssets.Exporters.UObjects
                         Count = o.Count,
                         Description = o.Description.Text,
                         HudShortDescription = o.HudShortDescription.Text,
+                        Hidden = o.bHidden
                     };
 
                     if (objectiveStatTable != null)

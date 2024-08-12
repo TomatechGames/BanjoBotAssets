@@ -31,5 +31,6 @@ namespace BanjoBotAssets.Json
         public string? HudShortDescription { get; set; }
         public int? ZonePowerLevel { get; set; }
         public int Count { get; set; }
+        public bool Hidden { get; set; }
     }
 }
