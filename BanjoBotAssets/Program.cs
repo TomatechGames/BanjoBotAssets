@@ -57,14 +57,15 @@ await Host.CreateDefaultBuilder(args)
     })
     .RunConsoleAsync(o => o.SuppressStatusMessages = true);
 }
-string pegLegDestination = Path.GetFullPath("../../../Banjo", Environment.CurrentDirectory);
+string pegLegDestination = Path.GetFullPath("PegLegAssets", Environment.CurrentDirectory);
 #if !RELEASE
 Console.WriteLine("type \"skip\" to skip pegleg post processing");
-pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
+//pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
 if (Console.ReadLine() != "skip")
 #endif
 {
-    //pegLegDestination = @"C:\Users\Tomatech\Documents\Godot Projects\PegLegGD\External\Banjo";
+    if(!Directory.Exists(pegLegDestination))
+        Directory.CreateDirectory(pegLegDestination);
     PegLegPostProcessor.PostProcessBanjoAssets(Environment.CurrentDirectory, pegLegDestination, PegLegPostProcessor.ImageMode.Move);
 }
 
