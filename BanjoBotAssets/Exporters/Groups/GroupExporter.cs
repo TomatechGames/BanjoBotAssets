@@ -179,6 +179,9 @@ namespace BanjoBotAssets.Exporters.Groups
 
                         output.AddNamedItem(templateId, itemData);
 
+                        fields.SmallPreviewImagePath ??= fields.LargePreviewImagePath;
+                        fields.LargePreviewImagePath ??= fields.SmallPreviewImagePath;
+
                         if (fields.SmallPreviewImagePath != null)
                         {
                             output.AddImageForNamedItem(templateId, ImageType.SmallPreview, fields.SmallPreviewImagePath);
