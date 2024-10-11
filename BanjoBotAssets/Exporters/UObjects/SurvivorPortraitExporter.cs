@@ -15,11 +15,15 @@ namespace BanjoBotAssets.Exporters.UObjects
 
         protected override Task<bool> ExportAssetAsync(UObject asset, NamedItemData itemData, Dictionary<ImageType, string> imagePaths)
         {
-            if (asset.GetSoftAssetPath("SmallImage") is string smallImagePath)
-                imagePaths.Add(ImageType.SmallPreview, smallImagePath);
+            string? smallPreviewPath = asset.GetSoftAssetPathFromDataList("Icon");
+            string? largePreviewPath = asset.GetSoftAssetPathFromDataList("LargeIcon") ?? smallPreviewPath;
+            smallPreviewPath ??= largePreviewPath;
 
-            if (asset.GetSoftAssetPath("LargeImage") is string largeImagePath)
-                imagePaths.Add(ImageType.LargePreview, largeImagePath);
+            if (smallPreviewPath is not null)
+                imagePaths.Add(ImageType.SmallPreview, smallPreviewPath);
+
+            if (largePreviewPath is not null)
+                imagePaths.Add(ImageType.LargePreview, largePreviewPath);
 
             return base.ExportAssetAsync(asset, itemData, imagePaths);
         }
