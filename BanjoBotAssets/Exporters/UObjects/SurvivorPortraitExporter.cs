@@ -15,8 +15,8 @@ namespace BanjoBotAssets.Exporters.UObjects
 
         protected override Task<bool> ExportAssetAsync(UObject asset, NamedItemData itemData, Dictionary<ImageType, string> imagePaths)
         {
-            string? smallPreviewPath = asset.GetSoftAssetPathFromDataList("Icon");
-            string? largePreviewPath = asset.GetSoftAssetPathFromDataList("LargeIcon") ?? smallPreviewPath;
+            string? smallPreviewPath = asset.GetSoftAssetPath("SmallImage");
+            string? largePreviewPath = asset.GetSoftAssetPath("LargeImage") ?? smallPreviewPath;
             smallPreviewPath ??= largePreviewPath;
 
             if (smallPreviewPath is not null)
