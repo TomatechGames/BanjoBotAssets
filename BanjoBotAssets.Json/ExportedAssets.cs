@@ -31,6 +31,8 @@ namespace BanjoBotAssets.Json
         public HeroStatTable HeroStats { get; set; } = new();
 
         public SortedDictionary<string, ExpeditionCriteria> ExpeditionCriteria { get; } = new(StringComparer.OrdinalIgnoreCase);
+        public SortedDictionary<string, int[]> ItemLevelsToXP { get; } = new();
+
         public SortedDictionary<string, DifficultyInfo> DifficultyInfo { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         public SortedDictionary<string, string[][]> MainQuestLines { get; } = [];
@@ -77,6 +79,14 @@ namespace BanjoBotAssets.Json
                 foreach (var (k, v) in other.ExpeditionCriteria)
                 {
                     ExpeditionCriteria[k] = v;
+                }
+            }
+
+            if(other.ItemLevelsToXP != null)
+            {
+                foreach (var (k, v) in other.ItemLevelsToXP)
+                {
+                    ItemLevelsToXP[k] = v;
                 }
             }
 

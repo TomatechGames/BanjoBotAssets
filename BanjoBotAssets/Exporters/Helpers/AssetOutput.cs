@@ -24,6 +24,8 @@ namespace BanjoBotAssets.Exporters.Helpers
     {
         private HeroStatTable? heroStats;
         private ItemRatingTable? defaultItemRatings, survivorItemRatings, leadSurvivorItemRatings;
+        private Dictionary<string, int[]>? levelToXP;
+
         private readonly ConcurrentDictionary<string, NamedItemData> namedItems = new(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<ImageType, ConcurrentDictionary<string, string>> namedItemImages = new();
         private readonly ConcurrentDictionary<string, DifficultyInfo> difficultyInfo = new(StringComparer.OrdinalIgnoreCase);
@@ -86,6 +88,11 @@ namespace BanjoBotAssets.Exporters.Helpers
             survivorItemRatings = itemRatings;
         }
 
+        public void AddLevelToXPTable(Dictionary<string, int[]> levelToXPTable)
+        {
+            levelToXP = levelToXPTable;
+        }
+
         public void CopyTo(ExportedAssets exportedAssets, IList<ExportedRecipe> exportedRecipes, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -134,6 +141,16 @@ namespace BanjoBotAssets.Exporters.Helpers
                 exportedAssets.ItemRatings.Survivor = survivorItemRatings;
             if (leadSurvivorItemRatings != null)
                 exportedAssets.ItemRatings.LeadSurvivor = leadSurvivorItemRatings;
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (levelToXP != null)
+            {
+                foreach (var (k, v) in levelToXP)
+                {
+                    exportedAssets.ItemLevelsToXP.Add(k, v);
+                }
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
 

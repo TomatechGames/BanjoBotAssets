@@ -23,16 +23,14 @@ namespace BanjoBotAssets.Json
     [NamedItemData("Hero")]
     public sealed class HeroItemData : NamedItemData
     {
-        [DisallowNull]
-        public string? HeroPerkName { get; set; }
+        public string? HeroPerkTemplate { get; set; }
         [DisallowNull]
         public string? HeroPerk { get; set; }
         [DisallowNull]
         public string? HeroStatType { get; set; }
         [DisallowNull]
         public string? HeroPerkDescription { get; set; }
-        [DisallowNull]
-        public string? CommanderPerkName { get; set; }
+        public string? CommanderPerkTemplate { get; set; }
         [DisallowNull]
         public string? CommanderPerk { get; set; }
         [DisallowNull]
