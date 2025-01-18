@@ -70,8 +70,8 @@ namespace BanjoBotAssets.PostExporters
                                 continue;
                             }
 
-                            var asset = await provider.LoadObjectAsync<UTexture2D>(imagePath);
-                            using var bitmap = asset.Decode();
+                            var asset = await provider.TryLoadObjectAsync<UTexture2D>(imagePath);
+                            using var bitmap = asset?.Decode();
                             if (bitmap == null)
                             {
                                 logger.LogError(Resources.Error_CannotDecodeTexture, imagePath);
