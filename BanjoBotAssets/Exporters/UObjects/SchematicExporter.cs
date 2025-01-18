@@ -201,9 +201,23 @@ namespace BanjoBotAssets.Exporters.UObjects
             itemData.Rarity = rarity.GetNameText().Text;
 
             imagePaths.Clear();
-            if (craftingResultItem.GetSoftAssetPathFromDataList("Icon") is string smallPreviewPath)
+            string? smallPreviewPath = craftingResultItem.GetSoftAssetPathFromDataList("Icon");
+            string? largePreviewPath = craftingResultItem.GetSoftAssetPathFromDataList("LargeIcon");
+
+            if (largePreviewPath is null && smallPreviewPath is not null)
+            {
+                string possibleLargePreviewPath = SmallIconRegex().Replace(smallPreviewPath, "$&-L");
+                if (provider.TryFindGameFile(possibleLargePreviewPath, out var _))
+                    largePreviewPath = possibleLargePreviewPath;
+            }
+
+            largePreviewPath ??= smallPreviewPath;
+            smallPreviewPath ??= largePreviewPath;
+
+            if (smallPreviewPath is not null)
                 imagePaths.Add(ImageType.SmallPreview, smallPreviewPath);
-            if (craftingResultItem.GetSoftAssetPathFromDataList("LargeIcon") is string largePreviewPath)
+
+            if (largePreviewPath is not null)
                 imagePaths.Add(ImageType.LargePreview, largePreviewPath);
 
             var statRow = craftingResultItem.GetOrDefault<FDataTableRowHandle?>("WeaponStatHandle")?.RowName.Text;

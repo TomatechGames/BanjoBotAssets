@@ -31,8 +31,7 @@ namespace BanjoBotAssets.Exporters.UObjects
     {
     }
 
-
-    internal abstract class UObjectExporter<TAsset, TItemData>(IExporterContext services) : BaseExporter(services)
+    internal abstract partial class UObjectExporter<TAsset, TItemData>(IExporterContext services) : BaseExporter(services)
         where TAsset : UObject
         where TItemData : NamedItemData, new()
     {
@@ -231,7 +230,16 @@ namespace BanjoBotAssets.Exporters.UObjects
                     var imagePaths = new Dictionary<ImageType, string>();
 
                     string? smallPreviewPath = uobject.GetSoftAssetPathFromDataList("Icon");
-                    string? largePreviewPath = uobject.GetSoftAssetPathFromDataList("LargeIcon") ?? smallPreviewPath;
+                    string? largePreviewPath = uobject.GetSoftAssetPathFromDataList("LargeIcon");
+
+                    if (largePreviewPath is null && smallPreviewPath is not null)
+                    {
+                        string possibleLargePreviewPath = SmallIconRegex().Replace(smallPreviewPath, "$&-L");
+                        if (provider.TryFindGameFile(possibleLargePreviewPath, out var _))
+                            largePreviewPath = possibleLargePreviewPath;
+                    }
+
+                    largePreviewPath ??= smallPreviewPath;
                     smallPreviewPath ??= largePreviewPath;
 
                     if (smallPreviewPath is not null)
@@ -262,5 +270,9 @@ namespace BanjoBotAssets.Exporters.UObjects
             Report(progress, "");
             logger.LogInformation(Resources.Status_ExportedGroup, Type, assetsToProcess.Count(), failedAssets.Count);
         }
+
+
+        [GeneratedRegex(@"/T-[A-Za-z-]*(?=\.)|\.T-[A-Za-z-]*$")]
+        protected static partial Regex SmallIconRegex();
     }
 }
