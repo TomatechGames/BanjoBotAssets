@@ -151,7 +151,7 @@ namespace BanjoBotAssets.Exporters.UObjects
             itemData.DisplayName = craftingResultItem.ItemName?.Text ?? $"<{asset.Name}>";
             itemData.Description = craftingResultItem.ItemDescription?.Text;
 
-            itemData.Tier = (int?)asset.GetOrDefaultFromDataList<EFortItemTier?>("Tier");
+            itemData.Tier = (int?)craftingResultItem.GetOrDefaultFromDataList<EFortItemTier?>("Tier");
 
             if (craftingResultItem.Name?.StartsWith("WID_", StringComparison.OrdinalIgnoreCase) ?? false)
             {
