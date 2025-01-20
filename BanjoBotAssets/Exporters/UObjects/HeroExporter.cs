@@ -113,6 +113,10 @@ namespace BanjoBotAssets.Exporters.UObjects
                 itemData.UnlocksTeamPerk = teamPerk;
             }
 
+            // stat type
+            var heroStatLineTags = hgd?.GetOrDefault<FGameplayTagContainer>("HeroBaseStatlineTags");
+            itemData.HeroStatLine = heroStatLineTags?.GameplayTags[0].TagName.Text.Split('.')?[^1] ?? "<?>";
+
             return true;
         }
 
