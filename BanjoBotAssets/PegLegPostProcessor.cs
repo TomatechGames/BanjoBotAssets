@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Collections.Concurrent;
+using System.Text.Json.Nodes;
 
 namespace BanjoBotAssets
 {
@@ -34,7 +35,8 @@ namespace BanjoBotAssets
             int total = items.Length;
             int nextIndex = 0;
 
-            Dictionary<string, JsonObject> splitItems = [];
+            ConcurrentDictionary<string, ConcurrentDictionary<string, JsonNode?>> splitItems = [];
+            ConcurrentDictionary<string, JsonObject> splitNonItems = [];
 
             void ProcessItem()
             {
@@ -54,34 +56,14 @@ namespace BanjoBotAssets
                         continue;
                     itemValue ??= [];
 
-                    string itemKey = items[currentIndex].Key;
-
-                    string[] splitKey = itemKey.Split(':');
-                    if (splitKey.Length == 2)
-                    {
-                        splitKey[1] = splitKey[1].ToLower(CultureInfo.CurrentCulture);
-                        itemKey = splitKey[0] + ":" + splitKey[1];
-                    }
-
-                    string? itemType = itemValue["Type"]?.ToString();
-                    //itemValue.Remove("Type");
+                    string itemType = itemValue["Type"]!.ToString();
+                    string itemKey = $"{itemType}:{itemValue["Name"]!.ToString().ToLower(CultureInfo.InvariantCulture)}";
 
                     if (itemType is null)
                         continue;
-                    //if (!itemType.EndsWith("s"))
-                    //{
-                    //    if (itemType.EndsWith("y"))
-                    //        itemType = itemType[..^1] + "ies";
-                    //    else
-                    //        itemType += "s";
-                    //}
 
-                    lock (splitItems)
-                    {
-                        if (!splitItems.ContainsKey(itemType))
-                            splitItems[itemType] = [];
-                        splitItems[itemType][itemKey] = itemValue;
-                    }
+                    splitItems.TryAdd(itemType, []);
+                    splitItems[itemType].TryAdd(itemKey, itemValue);
                     Console.WriteLine($"ported \"{itemValue?["DisplayName"]?.ToString()}\" to {itemType} object");
                 }
             }
@@ -92,24 +74,21 @@ namespace BanjoBotAssets
                 threads[i] = new(new ThreadStart(ProcessItem));
                 threads[i].Start();
             }
-
-            foreach (var remainingData in resultDatabase)
-            {
-                if (remainingData.Key == "NamedItems")
-                    continue;
-                string? stringified = remainingData.Value?.ToString();
-                if (stringified?.StartsWith("{", StringComparison.CurrentCulture) != true)
-                    continue;
-                JsonObject? remainingObj = JsonNode.Parse(stringified ?? "{}")?.AsObject();
-                lock (splitItems)
-                {
-                    if (remainingObj is not null)
-                        splitItems[remainingData.Key] = remainingObj;
-                }
-            }
-
             ProcessItem();
 
+            Parallel.ForEach(resultDatabase, remainingData =>
+            {
+                if (remainingData.Key == "NamedItems")
+                    return;
+                string? stringified = remainingData.Value?.ToString();
+                if (stringified?.StartsWith("{", StringComparison.CurrentCulture) != true)
+                    return;
+                JsonObject? remainingObj = JsonNode.Parse(stringified ?? "{}")?.AsObject();
+                if (remainingObj is not null)
+                    splitNonItems.TryAdd(remainingData.Key, remainingObj);
+            });
+
+            Directory.CreateDirectory($"{destinationDir.FullName}/NamedItems");
             foreach (var item in splitItems)
             {
                 if (item.Key.Contains('/'))
@@ -117,11 +96,25 @@ namespace BanjoBotAssets
                     Console.WriteLine("oops: " + item.Key);
                     continue;
                 }
+                FileInfo splitItemFile = new($"{destinationDir.FullName}/NamedItems/{item.Key}.json");
+                using var writer = splitItemFile.CreateText();
+                writer.WriteLine(new JsonObject(item.Value.AsEnumerable()).ToString());
+                writer.Flush();
                 Console.WriteLine("saved json: " + item.Key);
+            }
+
+            foreach (var item in splitNonItems)
+            {
+                if (item.Key.Contains('/'))
+                {
+                    Console.WriteLine("oops: " + item.Key);
+                    continue;
+                }
                 FileInfo splitItemFile = new($"{destinationDir.FullName}/{item.Key}.json");
                 using var writer = splitItemFile.CreateText();
                 writer.WriteLine(item.Value.ToString());
                 writer.Flush();
+                Console.WriteLine("saved json: " + item.Key);
             }
 
             if (imageMode!=ImageMode.Ignore)
