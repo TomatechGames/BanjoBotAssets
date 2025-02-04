@@ -152,7 +152,6 @@ namespace BanjoBotAssets.Exporters.UObjects
                     var displayName = uobject.GetOrDefault<FText>("ItemName")?.Text ?? uobject.GetOrDefault<FText>("DisplayName")?.Text ?? $"<{uobject.Name}>";
                     var description = uobject.GetOrDefault<FText>("ItemDescription")?.Text ?? uobject.GetOrDefault<FText>("Description")?.Text;
                     var isInventoryLimitExempt = !uobject.GetOrDefault("bInventorySizeLimited", true);
-                    var isPermenant = uobject.GetOrDefault<FDataTableRowHandle>("SacrificeRecipe") is null or { RowName.IsNone: true } or { DataTable: null };
 
                     var itemData = new TItemData
                     {
@@ -162,7 +161,6 @@ namespace BanjoBotAssets.Exporters.UObjects
                         DisplayName = displayName.Trim(),
                         Description = description,
                         IsInventoryLimitExempt = isInventoryLimitExempt,
-                        IsPermanent = isPermenant,
                     };
 
                     if (uobject.GetOrDefaultFromDataList<EFortItemTier>("Tier") is EFortItemTier tier && tier != default)
@@ -218,6 +216,7 @@ namespace BanjoBotAssets.Exporters.UObjects
                         if (recipe is not null)
                             itemData.RecycleRecipe = ConvertRecipe(recipe);
                     }
+                    itemData.IsPermanent = itemData.RecycleRecipe is null;
 
                     var levelToXPHandle = uobject.GetOrDefault<FCurveTableRowHandle>("LevelToSacrificeXpHandle");
                     if (!(levelToXPHandle is null or { RowName.IsNone: true } or { CurveTable: null }))
