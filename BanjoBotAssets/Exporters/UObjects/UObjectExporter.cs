@@ -17,7 +17,6 @@
  */
 using BanjoBotAssets.UExports;
 using CUE4Parse.FN.Enums.FortniteGame;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 namespace BanjoBotAssets.Exporters.UObjects
@@ -130,7 +129,7 @@ namespace BanjoBotAssets.Exporters.UObjects
                         {
                             var pkg = await provider.LoadPackageAsync(file);
                             cancellationToken.ThrowIfCancellationRequested();
-                            
+
                             uobject = pkg.GetExportOrNull(file.NameWithoutExtension, StringComparison.OrdinalIgnoreCase) as TAsset ??
                                 pkg.GetExport(file.NameWithoutExtension + "_C", StringComparison.OrdinalIgnoreCase) as TAsset;
                         }
@@ -153,6 +152,7 @@ namespace BanjoBotAssets.Exporters.UObjects
                     var displayName = uobject.GetOrDefault<FText>("ItemName")?.Text ?? uobject.GetOrDefault<FText>("DisplayName")?.Text ?? $"<{uobject.Name}>";
                     var description = uobject.GetOrDefault<FText>("ItemDescription")?.Text ?? uobject.GetOrDefault<FText>("Description")?.Text;
                     var isInventoryLimitExempt = !uobject.GetOrDefault("bInventorySizeLimited", true);
+                    var isPermenant = uobject.GetOrDefault<FDataTableRowHandle>("SacrificeRecipe") is null or { RowName.IsNone: true } or { DataTable: null };
 
                     var itemData = new TItemData
                     {
@@ -162,8 +162,9 @@ namespace BanjoBotAssets.Exporters.UObjects
                         DisplayName = displayName.Trim(),
                         Description = description,
                         IsInventoryLimitExempt = isInventoryLimitExempt,
+                        IsPermanent = isPermenant,
                     };
-                    
+
                     if (uobject.GetOrDefaultFromDataList<EFortItemTier>("Tier") is EFortItemTier tier && tier != default)
                     {
                         itemData.Tier = (int)tier;

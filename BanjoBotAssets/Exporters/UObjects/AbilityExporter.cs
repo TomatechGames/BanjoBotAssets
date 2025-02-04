@@ -141,7 +141,7 @@ namespace BanjoBotAssets.Exporters.UObjects
             var damageStats = gadget.DamageStatHandle;
             if (damageStats != null)
             {
-                FStructFallback? row = gadgetTable?.TryGetValue(damageStats.RowName.Text, out var gadgetRow)==true ? gadgetRow : null;
+                FStructFallback? row = gadgetTable?.TryGetValue(damageStats.RowName.Text, out var gadgetRow) == true ? gadgetRow : null;
                 row ??= meleeTable?.TryGetValue(damageStats.RowName.Text, out var meleeRow) == true ? meleeRow : null;
                 row ??= rangedTable?.TryGetValue(damageStats.RowName.Text, out var rangedRow) == true ? rangedRow : null;
 
@@ -194,6 +194,7 @@ namespace BanjoBotAssets.Exporters.UObjects
 
             namedItemData.AbilityStats ??= new();
 
+            // TODO: instead of hardcoding the definitions of each token, ideally we'd extract them from the ability asset itself
             // load extra ability stats from GameplayAbility
             // plasma pulse
             namedItemData.AbilityStats.Duration ??= GetStatFromGameplayAbility(gaCdo, "Pulse Duration");
@@ -214,7 +215,6 @@ namespace BanjoBotAssets.Exporters.UObjects
             namedItemData.AbilityStats.Duration ??= gaCdo.GetOrDefault<FScalableFloat>("AbilityDuration")?.GetScaledValue(logger);
             namedItemData.AbilityStats.Duration ??= gaCdo.GetOrDefault<FScalableFloat>("SF_AbilityDuration")?.GetScaledValue(logger);
 
-
             // load extra ability stats from Tooltip
             Interlocked.Increment(ref assetsLoaded);
             var tooltip = gaCdo.GetOrDefault<UBlueprintGeneratedClass?>("ToolTip");
@@ -225,8 +225,8 @@ namespace BanjoBotAssets.Exporters.UObjects
             // war cry
             namedItemData.AbilityStats.Damage ??= GetStatFromTooltip(tooltipCdo, "SF_DamageMult");
             namedItemData.AbilityStats.AbilityLine4 ??= GetStatFromTooltip(tooltipCdo, "SF_AttackSpeed", true);
-            namedItemData.AbilityStats.FireRate ??= 
-            namedItemData.AbilityStats.AbilityLine5 ??= GetStatFromTooltip(tooltipCdo, "SF_FireRate", true);
+            namedItemData.AbilityStats.FireRate ??=
+                namedItemData.AbilityStats.AbilityLine5 ??= GetStatFromTooltip(tooltipCdo, "SF_FireRate", true);
 
             // goin constructor
             namedItemData.AbilityStats.AbilityLine2 ??= GetStatFromTooltip(tooltipCdo, "ShieldBlock_Percentage");
@@ -245,11 +245,9 @@ namespace BanjoBotAssets.Exporters.UObjects
             // generic duration
             namedItemData.AbilityStats.Duration ??= GetStatFromTooltip(tooltipCdo, "SF_Duration");
 
-
             // generate tooltip text
             namedItemData.Description ??= await AbilityDescription.GetForActiveAbilityAsync(ga, gaCdo, this, tooltipCdo, namedItemData.AbilityStats);
         }
-
 
         private Dictionary<string, float>? GetStatDictionaryFromGameplayEffectCdo(UObject? modifierGeCdo)
         {
@@ -265,7 +263,15 @@ namespace BanjoBotAssets.Exporters.UObjects
                 .ToDictionary();
         }
 
-        bool tooltipStatLastSuccess;
+        private bool tooltipStatLastSuccess;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tooltipCdo"></param>
+        /// <param name="property"></param>
+        /// <param name="chain"><see langword="true"/> if this stat is dependent on a previous stat being found</param>
+        /// <returns></returns>
         private float? GetStatFromTooltip(UObject? tooltipCdo, string property, bool chain = false)
         {
             if (chain && !tooltipStatLastSuccess)
@@ -275,7 +281,16 @@ namespace BanjoBotAssets.Exporters.UObjects
             tooltipStatLastSuccess = result is not null;
             return result;
         }
-        bool gameplayAbilityStatLastSuccess;
+
+        private bool gameplayAbilityStatLastSuccess;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gaCdo"></param>
+        /// <param name="property"></param>
+        /// <param name="chain"><see langword="true"/> if this stat is dependent on a previous stat being found</param>
+        /// <returns></returns>
         private float? GetStatFromGameplayAbility(UObject gaCdo, string property, bool chain = false)
         {
             if (chain && !gameplayAbilityStatLastSuccess)
