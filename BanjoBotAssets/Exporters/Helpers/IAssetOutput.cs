@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with BanjoBotAssets.  If not, see <http://www.gnu.org/licenses/>.
  */
+using System.Collections.Generic;
+
 namespace BanjoBotAssets.Exporters.Helpers
 {
     internal interface IAssetOutput
@@ -32,6 +34,7 @@ namespace BanjoBotAssets.Exporters.Helpers
 
         void AddDifficultyInfo(string name, DifficultyInfo difficultyInfo);
 
+        void AddHomebaseRatingRequirements(Dictionary<string, int> fortRequirements);
         void AddDefaultItemRatings(ItemRatingTable itemRatings);
         void AddSurvivorItemRatings(ItemRatingTable itemRatings);
         void AddLeadSurvivorItemRatings(ItemRatingTable itemRatings);

@@ -21,6 +21,7 @@ namespace BanjoBotAssets.Exporters.Helpers
 {
     internal sealed class AssetOutput : IAssetOutput
     {
+        private Dictionary<string, int> homebaseRatingRequirements;
         private ItemRatingTable? defaultItemRatings, survivorItemRatings, leadSurvivorItemRatings;
         private readonly ConcurrentDictionary<string, NamedItemData> namedItems = new(StringComparer.OrdinalIgnoreCase);
         private readonly ConcurrentDictionary<ImageType, ConcurrentDictionary<string, string>> namedItemImages = new();
@@ -40,6 +41,11 @@ namespace BanjoBotAssets.Exporters.Helpers
         {
             public int XPStepAmount { get; set; } = 200_000;
             public ConcurrentDictionary<int, XPRewardLevel> Rewards = new();
+        }
+
+        public void AddHomebaseRatingRequirements(Dictionary<string, int> fortRequirements)
+        {
+            homebaseRatingRequirements = fortRequirements;
         }
 
         public void AddDefaultItemRatings(ItemRatingTable itemRatings)
@@ -76,6 +82,8 @@ namespace BanjoBotAssets.Exporters.Helpers
         public void CopyTo(ExportedAssets exportedAssets, IList<ExportedRecipe> exportedRecipes, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            exportedAssets.HomebaseRatingRequirements = homebaseRatingRequirements;
 
             foreach (var (k, v) in namedItems)
             {
