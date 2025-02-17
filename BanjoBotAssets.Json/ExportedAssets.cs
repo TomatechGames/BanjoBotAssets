@@ -32,6 +32,7 @@ namespace BanjoBotAssets.Json
 
         public SortedDictionary<string, ExpeditionCriteria> ExpeditionCriteria { get; } = new(StringComparer.OrdinalIgnoreCase);
         public SortedDictionary<string, int[]> ItemLevelsToXP { get; } = new();
+        public Dictionary<string, int> HomebaseRatingRequirements { get; set; } = [];
 
         public SortedDictionary<string, DifficultyInfo> DifficultyInfo { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -48,6 +49,8 @@ namespace BanjoBotAssets.Json
         public void Merge(ExportedAssets other)
         {
             ExportedAt = other.ExportedAt;
+
+            HomebaseRatingRequirements = other.HomebaseRatingRequirements;
 
             if (other.NamedItems != null)
             {
